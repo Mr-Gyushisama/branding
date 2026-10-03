@@ -25,7 +25,7 @@ const defaults={
     "その他":[{name:"大須商店街",type:"商業・飲食エリア",distance:"徒歩圏",note:""}]
   },
   hazardUrl:"",hazardBody:"独自の安全評価は行わず、行政機関が公開する情報を事実として案内します。",hazardNote:"※最新情報および詳細は行政機関の公表資料をご確認ください。",
-  managedBy:"株式会社ホームプランナー",managementHeading:"この建物を、長く心地よく。",managementBody:"本物件は株式会社ホームプランナーが管理しています。物件の魅力を丁寧に伝えることも、建物を長く維持していく管理サービスの一部と考えています。",ctaLabel:"ホームプランナーの賃貸管理を見る",ctaUrl:"https://hp-shueki.jp/"
+  managedBy:"株式会社ホームプランナー",managementHeading:"この建物を、長く心地よく。",managementBody:"本物件は株式会社ホームプランナーが管理しています。物件の魅力を丁寧に伝えることも、建物を長く維持していく管理サービスの一部と考えています。",managementImage:"",ctaLabel:"ホームプランナーの賃貸管理を見る",ctaUrl:"https://hp-shueki.jp/"
 };
 let state=JSON.parse(JSON.stringify(defaults));
 const imageOverrides={};
@@ -46,7 +46,7 @@ function renderBuilding(){
 }
 function renderFeatures(){
   const c=document.getElementById("featureRows");c.innerHTML="";
-  state.features.forEach((r,i)=>{const d=document.createElement("div");d.className="repeat-row gallery";d.innerHTML=rowInput("見出し",r.title)+rowInput("説明",r.body)+rowInput("画像パス",r.image)+removeBtn();const ins=d.querySelectorAll("input");ins[0].oninput=e=>{r.title=e.target.value;updatePreview()};ins[1].oninput=e=>{r.body=e.target.value;updatePreview()};ins[2].oninput=e=>{r.image=e.target.value;updatePreview()};d.querySelector(".remove-row").onclick=()=>{state.features.splice(i,1);renderFeatures();updatePreview()};c.appendChild(d)})
+  state.features.forEach((r,i)=>{const d=document.createElement("div");d.className="repeat-row gallery";d.innerHTML=rowInput("見出し",r.title)+rowInput("説明",r.body)+rowInput("画像パス",r.image)+'<label class="file-label">画像を選択<input type="file" accept="image/*"></label>'+removeBtn();const ins=d.querySelectorAll("input");ins[0].oninput=e=>{r.title=e.target.value;updatePreview()};ins[1].oninput=e=>{r.body=e.target.value;updatePreview()};ins[2].oninput=e=>{r.image=e.target.value;updatePreview()};ins[3].onchange=e=>handleObjectImage(e,r,"image","feature:"+i);d.querySelector(".remove-row").onclick=()=>{state.features.splice(i,1);renderFeatures();updatePreview()};c.appendChild(d)})
 }
 function renderGallery(){
   const c=document.getElementById("galleryRows");c.innerHTML="";
@@ -73,12 +73,12 @@ function hydrate(data){
   setSimple(state);renderBuilding();renderFeatures();renderGallery();renderStations();renderBuses();renderNeighborhood();updatePreview()
 }
 function collectSimple(){
-  const names=["propertyName","propertyNameEn","slug","areaLabel","metaDescription","heroCatch","heroSub","heroImage","conceptHeading","conceptBody","conceptImage","roomTitle","roomLabel","roomBody","roomNote","roomMainImage","roomSubImage1","roomSubImage2","floorplanImage","accessLead","mapUrl","neighborhoodTitle","neighborhoodLead","hazardUrl","hazardBody","hazardNote","managedBy","managementHeading","managementBody","ctaLabel","ctaUrl"];
+  const names=["propertyName","propertyNameEn","slug","areaLabel","metaDescription","heroCatch","heroSub","heroImage","conceptHeading","conceptBody","conceptImage","roomTitle","roomLabel","roomBody","roomNote","roomMainImage","roomSubImage1","roomSubImage2","floorplanImage","accessLead","mapUrl","neighborhoodTitle","neighborhoodLead","hazardUrl","hazardBody","hazardNote","managedBy","managementHeading","managementBody","managementImage","ctaLabel","ctaUrl"];
   names.forEach(n=>{if(field(n))state[n]=field(n).value.trim()});
 }
 function previewData(){
   collectSimple();const d=JSON.parse(JSON.stringify(state));
-  Object.entries(imageOverrides).forEach(([key,val])=>{if(key.startsWith("gallery:")){const i=+key.split(":")[1];if(d.gallery[i])d.gallery[i].image=val}else d[key]=val});
+  Object.entries(imageOverrides).forEach(([key,val])=>{if(key.startsWith("gallery:")){const i=+key.split(":")[1];if(d.gallery[i])d.gallery[i].image=val}else if(key.startsWith("feature:")){const i=+key.split(":")[1];if(d.features[i])d.features[i].image=val}else d[key]=val});
   return d
 }
 function updatePreview(){
@@ -92,6 +92,7 @@ function handleFile(file,key,pathSetter){
 }
 document.querySelectorAll(".image-picker").forEach(p=>p.onchange=e=>{const target=e.target.dataset.target;handleFile(e.target.files[0],target,path=>{field(target).value=path;state[target]=path})});
 function handleArrayImage(e,obj,key){const idx=state.gallery.indexOf(obj);handleFile(e.target.files[0],"gallery:"+idx,path=>{obj[key]=path;renderGallery()})}
+function handleObjectImage(e,obj,key,overrideKey){handleFile(e.target.files[0],overrideKey,path=>{obj[key]=path;renderFeatures()})}
 function download(name,text,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 document.getElementById("saveLocal").onclick=()=>{collectSimple();localStorage.setItem(STORAGE_KEY,JSON.stringify(state));toast("ブラウザに保存しました")};
 document.getElementById("loadLocal").onclick=()=>{const raw=localStorage.getItem(STORAGE_KEY);if(raw){hydrate(JSON.parse(raw));toast("保存データを読み込みました")}else toast("保存データがありません")};
