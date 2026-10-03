@@ -1,5 +1,5 @@
 
-(()=>{const groups=[
+(()=>{const oldHazard=document.querySelector("#hazard");if(oldHazard)oldHazard.remove();const groups=[
 {en:"SHOPPING",title:"買い物",copy:"食品・日用品を揃えやすい周辺施設。",places:[
 {name:"ヤマナカ 松原店",dist:"約165m",note:"スーパー",q:"ヤマナカ 松原店 名古屋"},
 {name:"ファミリーマート 松原二丁目店",dist:"約120m",note:"コンビニ",q:"ファミリーマート 松原二丁目店"},
@@ -33,6 +33,14 @@ const section=document.createElement("section");section.id="hp-neighborhood";sec
 <p>施設の位置や実際の徒歩経路はGoogle Mapsで確認できます。</p>
 <div class="hp-actions"><a class="hp-btn primary" href="https://maps.app.goo.gl/SSWyoZ1xjBk1yrQx9" target="_blank" rel="noopener">Google Mapsで周辺を見る</a></div>
 <p class="hp-note">※距離は掲載時点の公開情報等を基にした参考値です。実際の徒歩経路・所要時間、店舗の営業状況は最新情報をご確認ください。</p>
+</div>
+<div class="hp-hazard">
+<div class="hp-kicker">OFFICIAL HAZARD INFORMATION</div>
+<h3>防災情報</h3>
+<p>独自の安全評価は行わず、行政機関が公開する最新情報へ直接つなぎます。</p>
+<div class="hp-hazard-list"><span>洪水</span><span>内水氾濫</span><span>高潮</span><span>地震</span><span>指定避難所</span></div>
+<a class="hp-btn secondary" href="https://www.city.nagoya.jp/bousaiportal/hazardmap/1036429/1036295.html" target="_blank" rel="noopener">名古屋市 中区ハザードマップ</a>
+<p class="hp-note">※最新情報および詳細は行政機関の公表資料をご確認ください。</p>
 </div>
 </div>
 </div>`;
