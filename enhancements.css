@@ -1,59 +1,40 @@
 
 /* HOME PLANNER branding enhancement layer */
-#hp-lifestyle{background:#f7f7f4;color:#17221d;padding:88px 0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic",Meiryo,sans-serif}
-#hp-lifestyle *{box-sizing:border-box}
-#hp-lifestyle .hp-wrap{width:min(1180px,calc(100% - 48px));margin:0 auto}
-#hp-lifestyle .hp-kicker{font-size:11px;font-weight:800;letter-spacing:.18em;color:#10694B}
-#hp-lifestyle h2{margin:6px 0 10px;font-family:"Yu Mincho","Hiragino Mincho ProN",Georgia,serif;font-size:clamp(34px,4vw,48px);line-height:1.25;font-weight:500}
-#hp-lifestyle .hp-lead{max-width:720px;color:#68736d;font-size:14px;line-height:1.9;margin:0 0 28px}
-.hp-scene-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:26px 0 42px}
-.hp-scene{background:#fff;border:1px solid #e6e7e2;border-radius:16px;padding:22px;min-height:164px}
-.hp-scene .hp-scene-label{font-size:11px;color:#10694B;font-weight:800;letter-spacing:.08em}
-.hp-scene h3{font-size:18px;margin:6px 0 10px}
-.hp-scene p{margin:0;color:#68736d;font-size:13px;line-height:1.8}
-.hp-facility-panel{background:#fff;border:1px solid #e6e7e2;border-radius:18px;padding:28px}
-.hp-panel-head{display:flex;gap:18px;justify-content:space-between;align-items:flex-end;margin-bottom:18px}
-.hp-panel-head h3{margin:0;font-size:24px}
-.hp-panel-head p{margin:0;color:#68736d;font-size:12px}
-.hp-filters{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
-.hp-filter{appearance:none;border:1px solid #d9dfda;background:#fff;color:#3d4a43;border-radius:999px;padding:8px 13px;font-weight:700;font-size:12px;cursor:pointer}
-.hp-filter.active{background:#10694B;color:#fff;border-color:#10694B}
-.hp-facility-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.hp-facility{border:1px solid #e6e7e2;border-radius:14px;padding:17px;text-decoration:none;color:inherit;background:#fff;transition:.2s ease;display:block}
-.hp-facility:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(25,53,42,.08)}
-.hp-facility-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.hp-cat{font-size:10px;font-weight:800;color:#10694B;letter-spacing:.08em}
-.hp-dist{font-size:12px;font-weight:800;color:#F0830F}
-.hp-facility h4{font-size:16px;margin:6px 0 4px}
-.hp-facility p{font-size:12px;color:#68736d;margin:0;line-height:1.7}
-.hp-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+#hp-neighborhood{background:#f7f7f4;color:#17221d;padding:92px 0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic",Meiryo,sans-serif}
+#hp-neighborhood *{box-sizing:border-box}
+#hp-neighborhood .hp-wrap{width:min(1180px,calc(100% - 48px));margin:0 auto}
+#hp-neighborhood .hp-kicker{font-size:11px;font-weight:800;letter-spacing:.18em;color:#10694B}
+#hp-neighborhood h2{margin:6px 0 12px;font-family:"Yu Mincho","Hiragino Mincho ProN",Georgia,serif;font-size:clamp(36px,4vw,50px);line-height:1.2;font-weight:500}
+#hp-neighborhood .hp-lead{max-width:760px;color:#68736d;font-size:14px;line-height:1.95;margin:0 0 34px}
+.hp-life-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:26px}
+.hp-life-card{background:#fff;border:1px solid #e6e7e2;border-radius:18px;padding:26px;min-height:240px}
+.hp-life-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+.hp-life-card .hp-en{font-size:10px;font-weight:800;letter-spacing:.14em;color:#10694B}
+.hp-life-card h3{font-size:24px;margin:3px 0 0;font-family:"Yu Mincho","Hiragino Mincho ProN",Georgia,serif;font-weight:500}
+.hp-life-card .hp-copy{margin:0;color:#68736d;font-size:13px;line-height:1.8}
+.hp-place-list{margin-top:20px;border-top:1px solid #eceeea}
+.hp-place{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid #eceeea;text-decoration:none;color:inherit}
+.hp-place-main{min-width:0}
+.hp-place-name{font-size:14px;font-weight:750}
+.hp-place-note{font-size:11px;color:#7a847e;margin-top:2px}
+.hp-place-dist{font-size:12px;font-weight:800;color:#F0830F;white-space:nowrap}
+.hp-bottom-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:16px;margin-top:16px}
+.hp-map-card,.hp-hazard{background:#fff;border:1px solid #e6e7e2;border-radius:18px;padding:28px}
+.hp-map-card h3,.hp-hazard h3{font-size:22px;margin:0 0 8px}
+.hp-map-card p,.hp-hazard p{font-size:13px;color:#68736d;line-height:1.85;margin-top:0}
+.hp-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 .hp-btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 16px;border-radius:999px;text-decoration:none;font-size:13px;font-weight:800;border:1px solid #10694B}
 .hp-btn.primary{background:#10694B;color:#fff}
 .hp-btn.secondary{background:#fff;color:#10694B}
-.hp-note{font-size:11px;color:#7b847f;line-height:1.7;margin-top:16px}
-.hp-info-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:20px}
-.hp-hazard,.hp-qr{background:#fff;border:1px solid #e6e7e2;border-radius:18px;padding:28px}
-.hp-hazard h3,.hp-qr h3{font-size:22px;margin:0 0 10px}
-.hp-hazard p,.hp-qr p{font-size:13px;color:#68736d;line-height:1.85}
 .hp-hazard-list{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}
 .hp-hazard-list span{border:1px solid #dfe4e0;border-radius:10px;padding:11px 6px;text-align:center;color:#10694B;font-size:11px;font-weight:800}
-.hp-qr-inner{display:grid;grid-template-columns:160px 1fr;gap:22px;align-items:center}
-#hp-qr-box{width:160px;height:160px;background:#fff;display:flex;align-items:center;justify-content:center;border:1px solid #e6e7e2;padding:10px}
-#hp-qr-box canvas,#hp-qr-box img{max-width:100%!important;max-height:100%!important}
-.hp-url{word-break:break-all;font-size:11px;color:#69746e}
+.hp-note{font-size:11px;color:#7b847f;line-height:1.75;margin:16px 0 0}
 .hp-float{position:fixed;right:18px;bottom:18px;z-index:80;background:#10694B;color:#fff;text-decoration:none;padding:11px 15px;border-radius:999px;font-size:12px;font-weight:800;box-shadow:0 8px 30px rgba(0,0,0,.18)}
 @media(max-width:820px){
-  #hp-lifestyle{padding:62px 0}
-  #hp-lifestyle .hp-wrap{width:calc(100% - 34px)}
-  .hp-scene-grid,.hp-facility-grid,.hp-info-grid{grid-template-columns:1fr}
-  .hp-panel-head{display:block}
-  .hp-panel-head p{margin-top:6px}
+  #hp-neighborhood{padding:64px 0}
+  #hp-neighborhood .hp-wrap{width:calc(100% - 34px)}
+  .hp-life-grid,.hp-bottom-grid{grid-template-columns:1fr}
+  .hp-life-card{min-height:0;padding:22px}
   .hp-hazard-list{grid-template-columns:repeat(2,1fr)}
-  .hp-qr-inner{grid-template-columns:1fr;text-align:center}
-  #hp-qr-box{margin:0 auto}
   .hp-float{right:12px;bottom:12px}
-}
-@media print{
-  .hp-float,.hp-filters,.hp-actions{display:none!important}
-  #hp-lifestyle{background:#fff;padding:20px 0}
 }
