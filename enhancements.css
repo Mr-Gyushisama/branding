@@ -13,7 +13,7 @@
 .hp-place-list{margin-top:20px;border-top:1px solid #eceeea}
 .hp-place{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid #eceeea;text-decoration:none;color:inherit}
 .hp-place-name{font-size:14px;font-weight:750}.hp-place-note{font-size:11px;color:#7a847e;margin-top:2px}.hp-place-dist{font-size:12px;font-weight:800;color:#F0830F;white-space:nowrap}
-.hp-bottom-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:16px;margin-top:16px}
+.hp-bottom-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
 .hp-map-card,.hp-hazard{background:#fff;border:1px solid #e6e7e2;border-radius:18px;padding:28px}
 .hp-map-card h3,.hp-hazard h3{font-size:22px;margin:0 0 8px}
 .hp-map-card p,.hp-hazard p{font-size:13px;color:#68736d;line-height:1.85}
