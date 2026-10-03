@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>管理物件ページ｜入力フォーム</title>
+<link rel="stylesheet" href="property-form.css">
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <div class="eyebrow">HOME PLANNER</div>
+    <h1>管理物件ブランディングページ｜入力フォーム</h1>
+  </div>
+  <div class="top-actions">
+    <button id="saveLocal" class="btn ghost" type="button">ブラウザ保存</button>
+    <button id="loadLocal" class="btn ghost" type="button">保存データ読込</button>
+    <button id="exportJson" class="btn primary" type="button">JSONを書き出す</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="editor">
+    <div class="notice">
+      このフォームはWordPress化前のテンプレート検証用です。入力内容は右側のプレビューへ即時反映できます。
+      本番公開用画像は、最終的に <code>assets/物件slug/</code> 配下へ配置する想定です。
+    </div>
+
+    <form id="propertyForm" autocomplete="off">
+      <details open>
+        <summary>01｜基本情報</summary>
+        <div class="grid2">
+          <label>物件名<input name="propertyName" placeholder="L’Allure 松原"></label>
+          <label>英字名<input name="propertyNameEn" placeholder="L’ALLURE MATSUBARA"></label>
+          <label>slug<input name="slug" placeholder="lallure-matsubara"></label>
+          <label>所在エリア<input name="areaLabel" placeholder="名古屋市中区松原"></label>
+        </div>
+        <label>ページ説明<textarea name="metaDescription" rows="2" placeholder="建物・周辺環境・アクセス・防災情報をまとめた物件情報ページ"></textarea></label>
+      </details>
+
+      <details open>
+        <summary>02｜HERO・コンセプト</summary>
+        <label>HEROキャッチコピー<textarea name="heroCatch" rows="2" placeholder="街の近さと、住まいの落ち着きを。"></textarea></label>
+        <label>HEROサブコピー<input name="heroSub" placeholder="都市生活を軽やかに整えるレジデンス。"></label>
+        <div class="media-row">
+          <label>HERO画像パス<input name="heroImage" placeholder="assets/lallure-matsubara/exterior.jpg"></label>
+          <label class="file-label">画像を選択<input class="image-picker" data-target="heroImage" type="file" accept="image/*"></label>
+        </div>
+        <label>コンセプト見出し<textarea name="conceptHeading" rows="2"></textarea></label>
+        <label>コンセプト本文<textarea name="conceptBody" rows="5"></textarea></label>
+        <div class="media-row">
+          <label>コンセプト画像パス<input name="conceptImage" placeholder="assets/.../entrance.jpg"></label>
+          <label class="file-label">画像を選択<input class="image-picker" data-target="conceptImage" type="file" accept="image/*"></label>
+        </div>
+      </details>
+
+      <details open>
+        <summary>03｜建物概要</summary>
+        <div id="buildingRows" class="repeater"></div>
+        <button class="add-row" type="button" data-add="building">＋ 建物項目を追加</button>
+      </details>
+
+      <details>
+        <summary>04｜特徴・設備</summary>
+        <div id="featureRows" class="repeater"></div>
+        <button class="add-row" type="button" data-add="feature">＋ 特徴を追加</button>
+      </details>
+
+      <details>
+        <summary>05｜ギャラリー</summary>
+        <div id="galleryRows" class="repeater"></div>
+        <button class="add-row" type="button" data-add="gallery">＋ 写真を追加</button>
+      </details>
+
+      <details>
+        <summary>06｜住戸例</summary>
+        <div class="grid2">
+          <label>見出し<input name="roomTitle" placeholder="明るさと余白を活かした1LDK。"></label>
+          <label>住戸ラベル<input name="roomLabel" placeholder="201 / 1LDK"></label>
+        </div>
+        <label>説明<textarea name="roomBody" rows="4"></textarea></label>
+        <label>注記<input name="roomNote" placeholder="※住戸により間取り・内装・設備仕様が異なる場合があります。"></label>
+        <div class="grid2">
+          <label>メイン写真<input name="roomMainImage" placeholder="assets/.../ldk.jpg"></label>
+          <label>間取り図<input name="floorplanImage" placeholder="assets/.../floorplan.jpg"></label>
+        </div>
+        <div class="grid2">
+          <label>サブ写真1<input name="roomSubImage1" placeholder="assets/.../room.jpg"></label>
+          <label>サブ写真2<input name="roomSubImage2" placeholder="assets/.../washstand.jpg"></label>
+        </div>
+      </details>
+
+      <details open>
+        <summary>07｜ACCESS</summary>
+        <label>ACCESS説明<textarea name="accessLead" rows="3"></textarea></label>
+        <label>Google Maps URL<input name="mapUrl" placeholder="https://maps.app.goo.gl/..."></label>
+        <h3>鉄道</h3>
+        <div id="stationRows" class="repeater"></div>
+        <button class="add-row" type="button" data-add="station">＋ 駅を追加</button>
+        <h3>バス</h3>
+        <div id="busRows" class="repeater"></div>
+        <button class="add-row" type="button" data-add="bus">＋ バス停を追加</button>
+      </details>
+
+      <details open>
+        <summary>08｜周辺環境</summary>
+        <label>見出し<input name="neighborhoodTitle" placeholder="松原で暮らす。"></label>
+        <label>説明<textarea name="neighborhoodLead" rows="3"></textarea></label>
+        <div id="neighborhoodGroups" class="neighborhood-groups"></div>
+      </details>
+
+      <details>
+        <summary>09｜防災情報</summary>
+        <label>公的ハザードマップURL<input name="hazardUrl" placeholder="https://www.city.nagoya.jp/..."></label>
+        <label>説明<textarea name="hazardBody" rows="3"></textarea></label>
+        <label>注記<textarea name="hazardNote" rows="2"></textarea></label>
+      </details>
+
+      <details>
+        <summary>10｜管理会社・CTA</summary>
+        <label>管理表示<input name="managedBy" value="株式会社ホームプランナー"></label>
+        <label>見出し<input name="managementHeading" placeholder="この建物を、長く心地よく。"></label>
+        <label>本文<textarea name="managementBody" rows="4"></textarea></label>
+        <div class="grid2">
+          <label>CTAラベル<input name="ctaLabel" placeholder="ホームプランナーの賃貸管理を見る"></label>
+          <label>CTA URL<input name="ctaUrl" placeholder="https://hp-shueki.jp/"></label>
+        </div>
+      </details>
+
+      <details>
+        <summary>11｜データ入出力</summary>
+        <label>JSONを読み込む<input id="importJson" type="file" accept="application/json,.json"></label>
+        <p class="help">JSONを書き出しておけば、別物件への差し替え・バックアップ・将来のWordPress移行用データとして利用できます。</p>
+      </details>
+    </form>
+  </section>
+
+  <aside class="preview-pane">
+    <div class="preview-head">
+      <strong>ライブプレビュー</strong>
+      <a id="openPreview" target="_blank" rel="noopener">別タブで開く</a>
+    </div>
+    <iframe id="previewFrame" src="property-template.html?preview=1" title="物件ページプレビュー"></iframe>
+  </aside>
+</main>
+
+<script src="property-form.js"></script>
+</body>
+</html>
