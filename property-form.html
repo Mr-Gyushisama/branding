@@ -81,14 +81,10 @@
         </div>
         <label>説明<textarea name="roomBody" rows="4"></textarea></label>
         <label>注記<input name="roomNote" placeholder="※住戸により間取り・内装・設備仕様が異なる場合があります。"></label>
-        <div class="grid2">
-          <label>メイン写真<input name="roomMainImage" placeholder="assets/.../ldk.jpg"></label>
-          <label>間取り図<input name="floorplanImage" placeholder="assets/.../floorplan.jpg"></label>
-        </div>
-        <div class="grid2">
-          <label>サブ写真1<input name="roomSubImage1" placeholder="assets/.../room.jpg"></label>
-          <label>サブ写真2<input name="roomSubImage2" placeholder="assets/.../washstand.jpg"></label>
-        </div>
+        <div class="media-row"><label>メイン写真<input name="roomMainImage" placeholder="assets/.../ldk.jpg"></label><label class="file-label">画像を選択<input class="image-picker" data-target="roomMainImage" type="file" accept="image/*"></label></div>
+        <div class="media-row"><label>間取り図<input name="floorplanImage" placeholder="assets/.../floorplan.jpg"></label><label class="file-label">画像を選択<input class="image-picker" data-target="floorplanImage" type="file" accept="image/*"></label></div>
+        <div class="media-row"><label>サブ写真1<input name="roomSubImage1" placeholder="assets/.../room.jpg"></label><label class="file-label">画像を選択<input class="image-picker" data-target="roomSubImage1" type="file" accept="image/*"></label></div>
+        <div class="media-row"><label>サブ写真2<input name="roomSubImage2" placeholder="assets/.../washstand.jpg"></label><label class="file-label">画像を選択<input class="image-picker" data-target="roomSubImage2" type="file" accept="image/*"></label></div>
       </details>
 
       <details open>
@@ -122,6 +118,7 @@
         <label>管理表示<input name="managedBy" value="株式会社ホームプランナー"></label>
         <label>見出し<input name="managementHeading" placeholder="この建物を、長く心地よく。"></label>
         <label>本文<textarea name="managementBody" rows="4"></textarea></label>
+        <div class="media-row"><label>背景画像<input name="managementImage" placeholder="assets/.../management.jpg"></label><label class="file-label">画像を選択<input class="image-picker" data-target="managementImage" type="file" accept="image/*"></label></div>
         <div class="grid2">
           <label>CTAラベル<input name="ctaLabel" placeholder="ホームプランナーの賃貸管理を見る"></label>
           <label>CTA URL<input name="ctaUrl" placeholder="https://hp-shueki.jp/"></label>
