@@ -1,0 +1,64 @@
+name: HomePlanner official geodata probe
+on:
+  push:
+    branches: [access-map-evidence-20261008]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect-sources:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Install MVT diagnostic reader
+        run: python3 -m pip install --quiet mapbox-vector-tile
+      - name: Inspect latest GSI vector geometry and MLIT N02 archive
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import io,json,hashlib,zipfile,urllib.request,datetime
+          from pathlib import Path
+          import mapbox_vector_tile
+          result={"mode":"source_probe_not_advertising_evidence",
+                  "datetime_utc":datetime.datetime.now(datetime.timezone.utc).isoformat()}
+          def get(url,maxbytes=25000000):
+              req=urllib.request.Request(url,headers={"User-Agent":"HomePlannerSourceProbe/1.0"})
+              with urllib.request.urlopen(req,timeout=35) as r:
+                  code=r.status
+                  data=r.read(maxbytes+1)
+              if len(data)>maxbytes:raise ValueError("Response oversized")
+              return code,data
+          gsi="https://cyberjapandata.gsi.go.jp/xyz/experimental_bvmap/16/57686/25916.pbf"
+          try:
+              status,pbf=get(gsi,5000000)
+              layers=mapbox_vector_tile.decode(pbf,default_options={"geojson":False})
+              result["gsi"]={"http_status":status,"source_url":gsi,"sha256":hashlib.sha256(pbf).hexdigest(),
+                  "layers":[{"name":n,"count":len(v.get("features",[])),
+                  "sample_properties":[x.get("properties",{}) for x in v.get("features",[])[:2]]}
+                  for n,v in layers.items()]}
+              print("GSI",status,"layer_count",len(layers))
+              print("GSI_LAYERS",[(x["name"],x["count"]) for x in result["gsi"]["layers"]])
+          except Exception as e:
+              result["gsi_error"]=type(e).__name__+": "+str(e)[:250]
+              print("GSI_ERROR",result["gsi_error"])
+          archive="https://nlftp.mlit.go.jp/ksj/gml/data/N02/N02-2025/N02-25_GML.zip"
+          try:
+              status,blob=get(archive,25000000)
+              z=zipfile.ZipFile(io.BytesIO(blob))
+              names=[{"name":x.filename,"size":x.file_size} for x in z.infolist() if not x.is_dir()]
+              result["n02"]={"http_status":status,"source_url":archive,
+                  "sha256":hashlib.sha256(blob).hexdigest(),"files":names[:60]}
+              print("N02",status,"archive_bytes",len(blob),"files",len(names))
+              print("N02_NAMES",[x["name"] for x in names[:20]])
+          except Exception as e:
+              result["n02_error"]=type(e).__name__+": "+str(e)[:250]
+              print("N02_ERROR",result["n02_error"])
+          Path("homeplanner-official-geo-probe.json").write_text(
+              json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
+          print("PROBE_ONLY_NO_MAP")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: homeplanner-official-geo-probe
+          path: homeplanner-official-geo-probe.json
+          retention-days: 7
