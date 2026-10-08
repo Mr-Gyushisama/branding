@@ -134,7 +134,7 @@ def main():
                             "geometry":[[lat,lon] for lon,lat in coords],
                             "source":"Geospatial Information Authority of Japan GSI Vector",
                             "source_url":url,"source_id":road_id,"verified":True,"usage_ok":True,
-                            "evidence_kind":"official_vector_tile","properties":props})
+                            "evidence_kind":"provider_export","raw_evidence_kind":"official_vector_tile","properties":props})
         if not roads:raise ValueError("No GSI official road centerline features extracted")
         report.update({"road_count":len(roads),"gsi_road_ftcodes":roads_ftcodes,
             "gsi_requested_tile_count":count,
