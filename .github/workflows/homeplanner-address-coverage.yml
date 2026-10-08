@@ -10,42 +10,81 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - name: Inspect Geolonia address coverage without producing a map
+      - name: Read exact residential-number source rows
         shell: bash
         run: |
           python3 - <<'PY'
-          import json, urllib.request, urllib.parse, re
-          from datetime import datetime, timezone
+          import json,csv,io,hashlib,math,urllib.request,urllib.parse
           from pathlib import Path
+          from datetime import datetime,timezone
           base="https://japanese-addresses-v2.geoloniamaps.com/api"
-          def fetch(url):
-              req=urllib.request.Request(url,headers={"User-Agent":"HomePlannerAddressEvidence/1.0"})
-              with urllib.request.urlopen(req,timeout=30) as r:
-                  return r.read(25000000)
+          url=base+"/ja/"+urllib.parse.quote("愛知県")+"/"+urllib.parse.quote("名古屋市西区")+".json"
           out={"address":"愛知県名古屋市西区名西二丁目32番16号",
-               "generated_at":datetime.now(timezone.utc).isoformat(),
-               "purpose":"candidate_coverage_diagnostic_only",
-               "approved_for_advertising":False}
+               "purpose":"source_evidence_diagnostic_only",
+               "production_approved":False,
+               "generated_at_utc":datetime.now(timezone.utc).isoformat()}
+          def fetch(url,start=None,length=None):
+              headers={"User-Agent":"HomePlannerAddressEvidence/1.1"}
+              if start is not None:
+                  headers["Range"]=f"bytes={start}-{start+length-1}"
+              with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=30) as r:
+                  status=r.status
+                  data=r.read(30000000)
+              if start is not None:
+                  if status==200: data=data[start:start+length]
+                  elif status!=206: raise ValueError(f"Unexpected HTTP status {status}")
+                  if len(data)!=length: raise ValueError("Byte range incomplete")
+              return data
           try:
-              url=base+"/ja/"+urllib.parse.quote("愛知県")+"/"+urllib.parse.quote("名古屋市西区")+".json"
-              payload=json.loads(fetch(url))
-              rows=payload.get("data",[])
-              matched=[x for x in rows if "名西" in json.dumps(x,ensure_ascii=False) and
-                       ("二丁目" in json.dumps(x,ensure_ascii=False) or "2丁目" in json.dumps(x,ensure_ascii=False))]
-              out["town_candidate_count"]=len(matched)
-              out["town_candidate_keys"]=[list(x.keys()) for x in matched[:3]]
-              out["town_candidates"]=matched[:3]
-              out["status"]="town_candidate_found" if matched else "town_candidate_not_found"
+              city=json.loads(fetch(url))
+              town=[r for r in city["data"] if r.get("oaza_cho")=="名西" and
+                  r.get("chome")=="二丁目"]
+              if len(town)!=1: raise ValueError(f"Unexpected town match count: {len(town)}")
+              row=town[0]
+              out["town_identity"]={"machiaza_id":row["machiaza_id"],"oaza_cho":row["oaza_cho"],"chome":row["chome"]}
+              bounds=row.get("csv_ranges",{}).get("住居表示")
+              if not bounds:
+                  out["status"]="residential_section_missing"
+              else:
+                  start,length=int(bounds["start"]),int(bounds["length"])
+                  if not 0<length<30000000: raise ValueError("Invalid section size")
+                  txt_url=base+"/ja/"+urllib.parse.quote("愛知県")+"/"+urllib.parse.quote("名古屋市西区")+"-住居表示.txt"
+                  raw=fetch(txt_url,start,length)
+                  out["source_url"]=txt_url
+                  out["source_section_sha256"]=hashlib.sha256(raw).hexdigest()
+                  out["byte_range"]={"start":start,"length":length}
+                  lines=raw.decode("utf-8-sig").splitlines()
+                  if len(lines)<2 or lines[0].strip()!="住居表示,名西二丁目":
+                      raise ValueError("Section header town mismatch")
+                  if not lines[1].startswith("prc_num1,prc_num2,prc_num3,"):
+                      raise ValueError("Unexpected CSV columns")
+                  records=list(csv.DictReader(io.StringIO("\n".join(lines[1:]))))
+                  def number(s):
+                      s=str(s or "").strip()
+                      return int(s) if s.isdecimal() else None
+                  hits=[r for r in records if number(r.get("prc_num1"))==32 and number(r.get("prc_num2"))==16]
+                  out["section_row_count"]=len(records)
+                  out["exact_number_matches"]=len(hits)
+                  if len(hits)!=1: out["status"]="exact_residential_number_absent_or_ambiguous"
+                  else:
+                      h=hits[0]
+                      lat,lon=float(h["lat"]),float(h["lng"])
+                      if not (math.isfinite(lat) and math.isfinite(lon) and 34<lat<37 and 135<lon<139):
+                          raise ValueError("Invalid candidate coordinates")
+                      out["candidate"]={"latitude":lat,"longitude":lon,
+                          "prc_num1":h["prc_num1"],"prc_num2":h["prc_num2"],"prc_num3":h.get("prc_num3")}
+                      out["status"]="exact_candidate_found_requires_independent_verification"
           except Exception as e:
-              out["status"]="acquisition_failed"
-              out["error"]=type(e).__name__+": "+str(e)[:200]
-          Path("address-evidence.json").write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
+              out["status"]="acquisition_error"
+              out["error"]=type(e).__name__+": "+str(e)[:250]
+          Path("address-evidence.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
           print("STATUS",out["status"])
-          print("TOWN_CANDIDATES",out.get("town_candidate_count",0))
-          print("NO PROPERTY COORDINATE CONFIRMED; NO MAP GENERATED")
+          print("NUMBER_MATCHES",out.get("exact_number_matches","unknown"))
+          print("PRODUCTION_APPROVED",out["production_approved"])
+          print("No advertising map generated.")
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: homeplanner-address-coverage-diagnostic
+          name: homeplanner-exact-address-diagnostic
           path: address-evidence.json
           retention-days: 7
