@@ -1,0 +1,24 @@
+name: HomePlanner official map geometry acquisition
+on:
+  push:
+    branches: [access-map-evidence-20261008]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install required vector tile decoder
+        run: python3 -m pip install --quiet 'mapbox-vector-tile==2.2.0'
+      - name: Acquire and verify official roads, rails, stations
+        run: python3 access-map-diagnostic/acquire_geodata.py
+      - name: Publish evidence as private workflow artifact, not as website
+        uses: actions/upload-artifact@v4
+        with:
+          name: homeplanner-official-map-geometry
+          path: access-map-diagnostic/acquired/
+          retention-days: 7
+          if-no-files-found: error
