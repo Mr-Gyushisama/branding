@@ -1,0 +1,22 @@
+name: HomePlanner exact landmark coordinate check
+on:
+  push:
+    branches: [access-map-evidence-20261008]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Resolve named landmark address from official source
+        run: python access-map-diagnostic/acquire_poi_exact.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: homeplanner-landmark-geocoder-diagnostic
+          path: poi-geocoder-evidence.json
+          retention-days: 7
