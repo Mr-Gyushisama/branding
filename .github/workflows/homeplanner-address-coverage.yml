@@ -1,0 +1,51 @@
+name: HomePlanner exact address candidate check
+on:
+  push:
+    branches: [access-map-evidence-20261008]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check-address:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Inspect Geolonia address coverage without producing a map
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, urllib.request, urllib.parse, re
+          from datetime import datetime, timezone
+          from pathlib import Path
+          base="https://japanese-addresses-v2.geoloniamaps.com/api"
+          def fetch(url):
+              req=urllib.request.Request(url,headers={"User-Agent":"HomePlannerAddressEvidence/1.0"})
+              with urllib.request.urlopen(req,timeout=30) as r:
+                  return r.read(25000000)
+          out={"address":"愛知県名古屋市西区名西二丁目32番16号",
+               "generated_at":datetime.now(timezone.utc).isoformat(),
+               "purpose":"candidate_coverage_diagnostic_only",
+               "approved_for_advertising":False}
+          try:
+              url=base+"/ja/"+urllib.parse.quote("愛知県")+"/"+urllib.parse.quote("名古屋市西区")+".json"
+              payload=json.loads(fetch(url))
+              rows=payload.get("data",[])
+              matched=[x for x in rows if "名西" in json.dumps(x,ensure_ascii=False) and
+                       ("二丁目" in json.dumps(x,ensure_ascii=False) or "2丁目" in json.dumps(x,ensure_ascii=False))]
+              out["town_candidate_count"]=len(matched)
+              out["town_candidate_keys"]=[list(x.keys()) for x in matched[:3]]
+              out["town_candidates"]=matched[:3]
+              out["status"]="town_candidate_found" if matched else "town_candidate_not_found"
+          except Exception as e:
+              out["status"]="acquisition_failed"
+              out["error"]=type(e).__name__+": "+str(e)[:200]
+          Path("address-evidence.json").write_text(json.dumps(out,ensure_ascii=False,indent=2),encoding="utf-8")
+          print("STATUS",out["status"])
+          print("TOWN_CANDIDATES",out.get("town_candidate_count",0))
+          print("NO PROPERTY COORDINATE CONFIRMED; NO MAP GENERATED")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: homeplanner-address-coverage-diagnostic
+          path: address-evidence.json
+          retention-days: 7
