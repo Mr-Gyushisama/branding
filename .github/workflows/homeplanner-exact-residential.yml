@@ -40,7 +40,7 @@ jobs:
               towns=json.loads(download(index_url))["data"]
               town=next(x for x in towns if x.get("oaza_cho")=="名西" and x.get("chome")=="二丁目")
               section=town["csv_ranges"]["住居表示"]
-              section_url=root+municipality+"-住居表示.txt"
+              section_url=root+municipality+"-"+urllib.parse.quote("住居表示")+".txt"
               data=download(section_url,int(section["start"]),int(section["length"]))
               text=data.decode("utf-8-sig")
               lines=text.splitlines()
