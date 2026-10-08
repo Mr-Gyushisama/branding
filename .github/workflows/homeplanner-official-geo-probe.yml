@@ -41,7 +41,7 @@ jobs:
           except Exception as e:
               result["gsi_error"]=type(e).__name__+": "+str(e)[:250]
               print("GSI_ERROR",result["gsi_error"])
-          archive="https://nlftp.mlit.go.jp/ksj/gml/data/N02/N02-2025/N02-25_GML.zip"
+          archive="https://nlftp.mlit.go.jp/ksj/gml/data/N02/N02-25/N02-25_GML.zip"
           try:
               status,blob=get(archive,25000000)
               z=zipfile.ZipFile(io.BytesIO(blob))
