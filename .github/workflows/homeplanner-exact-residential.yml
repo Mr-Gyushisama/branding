@@ -1,0 +1,79 @@
+name: HomePlanner residential-number evidence
+on:
+  push:
+    branches: [access-map-evidence-20261008]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  exact-residential:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Read source residential rows and match 32 block 16 residence
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import csv,io,json,urllib.request,urllib.parse,hashlib,math
+          from datetime import datetime,timezone
+          from pathlib import Path
+          root="https://japanese-addresses-v2.geoloniamaps.com/api/ja/"
+          municipality=urllib.parse.quote("愛知県")+"/"+urllib.parse.quote("名古屋市西区")
+          output={"address":"愛知県名古屋市西区名西二丁目32番16号",
+                  "mode":"diagnostic_not_production_approved",
+                  "collected_at":datetime.now(timezone.utc).isoformat(),
+                  "status":"unresolved","advertising_use_approved":False}
+          def download(url,start=None,length=None):
+              headers={"User-Agent":"HomePlannerAddressEvidence/1.0"}
+              if start is not None:headers["Range"]=f"bytes={start}-{start+length-1}"
+              with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=30) as resp:
+                  status=resp.status
+                  data=resp.read(25000000)
+              if start is not None and status==200:data=data[start:start+length]
+              if start is not None and len(data)!=length:raise ValueError("Range size mismatch")
+              return data
+          def strip_num(v):
+              v=str(v or "")
+              return v.lstrip("0") or "0" if v.isdigit() else v
+          try:
+              index_url=root+municipality+".json"
+              towns=json.loads(download(index_url))["data"]
+              town=next(x for x in towns if x.get("oaza_cho")=="名西" and x.get("chome")=="二丁目")
+              section=town["csv_ranges"]["住居表示"]
+              section_url=root+municipality+"-住居表示.txt"
+              data=download(section_url,int(section["start"]),int(section["length"]))
+              text=data.decode("utf-8-sig")
+              lines=text.splitlines()
+              if len(lines)<3 or lines[0]!="住居表示,名西二丁目":raise ValueError("Unexpected town header")
+              rows=list(csv.DictReader(io.StringIO("\n".join(lines[1:]))))
+              found=[r for r in rows if strip_num(r.get("blk_num"))=="32" and
+                     strip_num(r.get("rsdt_num"))=="16" and
+                     strip_num(r.get("rsdt_num2")) in ("","0")]
+              exact=[r for r in found if r.get("lng") and r.get("lat")]
+              output["residential_section_rows"]=len(rows)
+              output["exact_address_rows"]=len(found)
+              output["exact_rows_with_coordinates"]=len(exact)
+              output["section_sha256"]=hashlib.sha256(data).hexdigest()
+              output["source_url"]=section_url
+              if len(found)==1 and len(exact)==1:
+                  lng,lat=float(exact[0]["lng"]),float(exact[0]["lat"])
+                  if not (math.isfinite(lng) and math.isfinite(lat) and 135<lng<139 and 34<lat<37):
+                      raise ValueError("Out of range coordinates")
+                  output["candidate_point"]={"longitude":lng,"latitude":lat}
+                  output["status"]="exact_residential_candidate_found"
+              elif not found:output["status"]="exact_residential_row_absent"
+              else:output["status"]="coordinate_absent_or_ambiguous"
+          except Exception as e:
+              output["status"]="error"
+              output["error"]=type(e).__name__+": "+str(e)[:200]
+          Path("homeplanner-exact-address.json").write_text(json.dumps(output,ensure_ascii=False,indent=2),encoding="utf-8")
+          print("RESULT",output["status"])
+          print("ROWS",output.get("residential_section_rows"),"EXACT",output.get("exact_address_rows"),
+                "POINT_ROWS",output.get("exact_rows_with_coordinates"))
+          print("DIAGNOSTIC ONLY - NO MAP GENERATED")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: homeplanner-exact-residential-evidence
+          path: homeplanner-exact-address.json
+          retention-days: 7
